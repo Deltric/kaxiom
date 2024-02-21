@@ -10,8 +10,8 @@ class JsonPayloadItem<T>(
     private val value: T,
 ) : PayloadItem {
 
-    private var pretty: Boolean = false
-    private var gson: Gson? = null
+    var pretty: Boolean = false
+    var gson: Gson? = null
 
     override val supportedTypes = arrayOf(ContentType.NDJSON, ContentType.JSON)
 
