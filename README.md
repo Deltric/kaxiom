@@ -41,8 +41,8 @@ data class ExampleEvent(
 fun main() {
     // Build your InjestPool by providing your Axiom API key and dataset name
     val pool = KAxiom.createInjestPool<ExampleEvent> {
-        this.token = Temp.SECRET_TOKEN
-        this.dataset = "kaxtesting"
+        this.token = "my-token"
+        this.dataset = "my-dataset"
     }
 
     pool.injest(ExampleEvent(UUID.randomUUID(), "Foo Event", mapOf("foo" to "bar")))
