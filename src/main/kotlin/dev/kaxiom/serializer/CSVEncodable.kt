@@ -6,9 +6,9 @@ package dev.kaxiom.serializer
 interface CSVEncodable {
 
     /**
-     * Encodes the object to a list of strings, where each string is a field in the row.
-     * @return The list of fields in the row.
+     * Returns a CSV representation of the object.
+     * @return The CSV representation of the object.
      */
-    fun toCSV(): List<String>
+    fun toCSV(): String
 
 }

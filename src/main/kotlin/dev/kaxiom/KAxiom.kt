@@ -5,54 +5,61 @@ import com.google.gson.JsonObject
 import dev.kaxiom.exception.AxiomAuthException
 import dev.kaxiom.exception.AxiomException
 import dev.kaxiom.exception.AxiomInvalidPayloadException
-import dev.kaxiom.injest.InjestBuilder
+import dev.kaxiom.injest.CSVInjestPool
+import dev.kaxiom.injest.CSVPoolBuilder
+import dev.kaxiom.injest.JsonInjestPool
+import dev.kaxiom.injest.JsonPoolBuilder
 import java.net.HttpURLConnection
 import java.net.URL
 import java.util.zip.GZIPOutputStream
 
-class KAxiom(
-    private val token: String,
-) {
-    private val baseUrl = "$AXIOM_URL/$API_VERSION"
+/**
+ * Central object for interacting with the Axiom API.
+ */
+object KAxiom {
+
+    private const val AXIOM_URL = "https://api.axiom.co"
+    private const val API_VERSION = "v1"
+    private const val BASE_URL = "$AXIOM_URL/$API_VERSION"
+
+    private val responseGson = Gson()
 
     /**
-     * Sends a payload to the specified dataset.
-     *
-     * @param builder The builder for the injest request.
-     *
-     * @throws AxiomAuthException If the token is invalid.
-     * @throws AxiomInvalidPayloadException If the payload is invalid.
-     * @throws AxiomException If the request fails for any other reason.
+     * Creates a new [JsonInjestPool] with the specified settings.
+     * @param builder The settings for the pool.
+     * @return The created json pool.
      */
-    fun injest(builder: InjestBuilder.() -> Unit) {
-        val injest = InjestBuilder().apply(builder).build()
-        this.injest(
-            dataset = injest.dataset,
-            payload = injest.payload,
-            contentType = injest.type,
-            encoding = injest.encoding
-        )
+    fun <T : Any> createInjestPool(builder: JsonPoolBuilder<T>.() -> Unit): JsonInjestPool<T> {
+        return JsonPoolBuilder<T>().apply(builder).build()
+    }
+
+    /**
+     * Creates a new [CSVInjestPool] with the specified settings.
+     * @param builder The settings for the pool.
+     * @return The created csv pool.
+     */
+    fun createInjestPool(builder: CSVPoolBuilder.() -> Unit): CSVInjestPool {
+        return CSVPoolBuilder().apply(builder).build()
     }
 
     /**
      * Sends a payload to the specified dataset.
-     *
      * @param dataset The dataset to send the payload to.
      * @param payload The payload to send.
      * @param contentType The content type of the payload.
      * @param encoding The encoding of the payload.
-     *
      * @throws AxiomAuthException If the token is invalid.
      * @throws AxiomInvalidPayloadException If the payload is invalid.
      * @throws AxiomException If the request fails for any other reason.
      */
     fun injest(
+        token: String,
         dataset: String,
         payload: String,
         contentType: ContentType,
         encoding: ContentEncoding = ContentEncoding.GZIP,
     ) {
-        val url = URL("$baseUrl/datasets/$dataset/ingest")
+        val url = URL("$BASE_URL/datasets/$dataset/ingest")
         val connection = url.openConnection() as HttpURLConnection
         connection.requestMethod = "POST"
 
@@ -80,7 +87,7 @@ class KAxiom(
         }
 
         val responseBody = connection.errorStream.bufferedReader().use { it.readText() }
-        val response = gson.fromJson(responseBody, JsonObject::class.java)
+        val response = responseGson.fromJson(responseBody, JsonObject::class.java)
         val message = response["message"].asString
 
         if (responseCode == 403) {
@@ -90,11 +97,4 @@ class KAxiom(
         }
         throw AxiomException(message)
     }
-
-    companion object {
-        const val AXIOM_URL = "https://api.axiom.co"
-        const val API_VERSION = "v1"
-        private val gson = Gson()
-    }
-
 }

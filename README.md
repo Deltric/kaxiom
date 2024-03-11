@@ -1,39 +1,56 @@
-# kaxiom
-Unofficial Kotlin bindings for the Axiom API
+# KAxiom
+KAxiom is an unofficial Kotlin JVM binding for the Axiom API. 
 
-## Example Usage
-### Creating a new Axiom instance
+- This project is actively in development and breaking changes may occur during this early stage.
+- We'd love to hear any feedback, questions, or suggestions you have. Please feel free to open an issue.
+- **Injest data:** KAxiom provides a simple way to ingest data into Axiom. Supports all of Axiom's injest formats and includes automatic serialization of objects utilizing Gson.
+- **Query data:** KAxiom currently does not support querying data from Axiom. This is a planned feature that is currently in the works.
+
+## Documentation
+- Dokka (TODO)
+- [Wiki](https://github.com/Deltric/kaxiom/wiki)
+
+## Installation
+## Gradle (Kotlin DSL)
 ```kotlin
-val axiom = KAxiom("YOUR_API_TOKEN")
+TODO
 ```
 
-### Injesting a object
+## Gradle (Groovy DSL)
+```groovy
+TODO
+```
+
+## Maven
+```xml
+TODO
+```
+
+## Quickstart
+Create a new injest pool like this:
 ```kotlin
-data class ItemSoldEvent(
-    val item: String, 
-    val price: Double, 
-    val quantity: Int
+import java.util.UUID
+import dev.kaxiom.KAxiom
+
+data class ExampleEvent(
+    val id: UUID,
+    val name: String,
+    val context: Map<String, Any>
 )
 
-// Json with serialization through Gson
-axiom.injest {
-    this.dataset = "example-purchases-dataset"
-    this.payload = listOf(
-        json(ItemSoldEvent("Apple", 1.0, 1)) {
-            // Optionally you can supply a custom Gson instance or the default will be JsonPayloadItem.defaultGson.
-            this.gson = Gson()
-        },
-        json(ItemSoldEvent("Banana", 2.3, 2))
-    )
-}
+fun main() {
+    // Build your InjestPool by providing your Axiom API key and dataset name
+    val pool = KAxiom.createInjestPool<ExampleEvent> {
+        this.token = Temp.SECRET_TOKEN
+        this.dataset = "kaxtesting"
+    }
 
-// CSV
-axiom.injest {
-    this.dataset = "example-purchases-dataset"
-    this.header = "item,price,quantity"
-    this.payload = listOf(
-        csv("Apple,1.0,1"),
-        csv("Banana,2.3,2")
-    )
+    pool.injest(ExampleEvent(UUID.randomUUID(), "Foo Event", mapOf("foo" to "bar")))
+
+    // Flush the pool to send events to Axiom
+    pool.flush()
 }
 ```
+
+## License
+KAxiom is licensed under [MIT License](LICENSE-MIT)

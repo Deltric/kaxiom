@@ -10,7 +10,7 @@ kotlin {
 }
 
 group = "dev.kaxiom"
-version = "1.0.1-SNAPSHOT"
+version = "1.0.2-SNAPSHOT"
 
 repositories {
     mavenCentral()
@@ -18,6 +18,8 @@ repositories {
 
 dependencies {
     implementation("com.google.code.gson:gson:2.10.1")
+    implementation(kotlin("reflect"))
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
 }
 
 tasks.shadowJar {
