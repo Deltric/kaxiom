@@ -53,4 +53,4 @@ fun main() {
 ```
 
 ## License
-KAxiom is licensed under [MIT License](LICENSE-MIT)
+KAxiom is licensed under [MIT License](LICENSE)
